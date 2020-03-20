@@ -10,14 +10,15 @@ import * as Reporters from "./reporters";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { AWSCredentialsProvider } from "./utils/aws/credentials";
 import { LogUtil } from "./utils/log";
-import { iam } from "./collectors/aws";
+
 
 const cliArgs = Cli.parse({
     debug: ["d", "if you enable Debug then it will generate intermediate reports", "boolean", false],
     format: ["f", "output format: html, json, csv or pdf", "string", "html"],
     issuesOnly: ["i", "should show only issues", "boolean", false],
     logLevel: ["l", "Log level: off=100, info=1, warning=2, error=3", "int", "3"],
-    module: ["m", "name of the module", "string"],
+    module: ["m", "name of the module(s)", "string"],
+    regions: ["r", "name of the region(s)", "string"],
     output: ["o", "Report file name", "string", "scan_report"],
     outputDir: ["D", "Output directory", "string", "."],
     profile: ["p", "AWS profile name", "string", "default"],
@@ -65,7 +66,7 @@ async function makeFileContents(analyzedData) {
             opn("http://localhost:3000");
         }
         case "pdf": {
-            return Reporters.generatePDF(analyzedData, { showIssuesOnly: cliArgs.issuesOnly });
+            return Reporters.generatePDF(analyzedData, { showIssuesOnly: cliArgs.issuesOnly, debug: cliArgs.debug });
         }
         default: throw new Error("Unsupported report format");
     }
@@ -77,7 +78,7 @@ async function getCollectorResults() {
         return JSON.parse(readFileSync(collectorReportFileName, { encoding: "utf-8" }));
     }
     const credentials = await AWSCredentialsProvider.getCredentials(cliArgs.profile);
-    return await CollectorMain.collect(cliArgs.module, credentials);
+    return await CollectorMain.collect({moduleNames: cliArgs.module, credentials, regions: cliArgs.regions});
 }
 function getAccountNumber(analyzedData) {
     if (analyzedData["aws.account"]) {
@@ -85,6 +86,8 @@ function getAccountNumber(analyzedData) {
     }
     return "";
 }
+
+
 async function scan() {
     try {
         const collectorResults = await getCollectorResults();
@@ -94,6 +97,8 @@ async function scan() {
         }
         const analyzedData = AnalyzerMain.analyze(collectorResults);
         const accountNumber = getAccountNumber(analyzedData);
+
+
         if (cliArgs.debug) {
             const analyzerReportFileName = cliArgs.outputDir + "/analyzer_report.json";
             writeFileSync(analyzerReportFileName, JSON.stringify(analyzedData, null, 2));
@@ -102,6 +107,7 @@ async function scan() {
         const reportFileData = await makeFileContents(analyzedData);
         if (cliArgs.format !== "html") {
             const reportFileName = makeFileName(accountNumber);
+
             writeFileSync(reportFileName, reportFileData);
             LogUtil.log(`${reportFileName} is generated`);
             opn(reportFileName, { wait: false });

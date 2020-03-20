@@ -6,7 +6,7 @@ import { ESDomainNamesCollector } from "./domain_names";
 
 import { IDictionary } from "../../../types";
 
-export class ESDomainsCollector extends BaseCollector {
+export class ESDomainConfigsCollector extends BaseCollector {
   private context: IDictionary<any> = {};
   public getContext() {
     return this.context;
@@ -21,7 +21,7 @@ export class ESDomainsCollector extends BaseCollector {
     const esRegions = this.getRegions(serviceName);
     const esDomainNamesCollector = new ESDomainNamesCollector();
     esDomainNamesCollector.setSession(this.getSession());
-    const domains = {};
+    const domain_configs = {};
 
     try {
       const domainNamesData = await CollectorUtil.cachedCollect(
@@ -30,18 +30,25 @@ export class ESDomainsCollector extends BaseCollector {
       const domainNames = domainNamesData.domain_names;
 
       for (const region of esRegions) {
-        if (!domainNames[region]) {
+        if (!domainNames[region] || !domainNames[region].length) {
           continue;
         }
+
         try {
           const es = this.getClient(serviceName, region) as AWS.ES;
+          domain_configs[region] = {};
           this.context[region] = region;
-          const domainsResponse: AWS.ES.DescribeElasticsearchDomainsResponse = await es
-            .describeElasticsearchDomains({ DomainNames: domainNames[region] })
-            .promise();
-          if (domainsResponse && domainsResponse.DomainStatusList) {
-            domains[region] = domainsResponse.DomainStatusList;
+
+          for (const domainName of domainNames[region]) {
+            const domainConfigResponse: AWS.ES.DescribeElasticsearchDomainConfigResponse = await es
+              .describeElasticsearchDomainConfig({ DomainName: domainName })
+              .promise();
+            if (domainConfigResponse && domainConfigResponse.DomainConfig) {
+              domain_configs[region][domainName] =
+                domainConfigResponse.DomainConfig;
+            }
           }
+
           await CommonUtil.wait(200);
         } catch (error) {
           AWSErrorHandler.handle(error);
@@ -51,6 +58,6 @@ export class ESDomainsCollector extends BaseCollector {
     } catch (error) {
       AWSErrorHandler.handle(error);
     }
-    return { domains };
+    return { domain_configs };
   }
 }

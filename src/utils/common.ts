@@ -18,6 +18,10 @@ export class CommonUtil {
         return Math.floor(Moment.duration(Moment().diff(Moment(date))).asDays());
     }
 
+    public static fromNow(date: string | Date | number) {
+        return Moment(date).fromNow();
+    }
+
     public static uniqId() {
         return `${Date.now()}_${Math.floor(Math.random() * 10000000)}`;
     }
@@ -29,4 +33,16 @@ export class CommonUtil {
             return [obj];
         }
     }
+
+    public static string2Array(names?: string | string[]) {
+        if (!names || names === "all") {
+          return [];
+        }
+        if (Array.isArray(names)) {
+          names;
+        } else if (typeof names === "string") {
+          return names.split(",");
+        }
+        return [];
+      }
 }

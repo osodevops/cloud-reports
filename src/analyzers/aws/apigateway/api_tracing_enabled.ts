@@ -1,22 +1,23 @@
 import {
-    CheckAnalysisType, ICheckAnalysisResult,
+    CheckAnalysisType,
+    ICheckAnalysisResult,
     IDictionary, IResourceAnalysisResult, SeverityStatus,
 } from "../../../types";
 import { BaseAnalyzer } from "../../base";
 
-export class ApiLogsAnalyzer extends BaseAnalyzer {
+export class ApiXRayTracingAnalyzer extends BaseAnalyzer {
 
     public analyze(params: any, fullReport?: any): any {
         const allApis: any[] = params.apis;
         const allApiStages: any[] = params.api_stages;
-    
+
         if (!allApis || !allApiStages) {
             return undefined;
         }
-        const api_logs_enabled: ICheckAnalysisResult = { type: CheckAnalysisType.OperationalExcellence };
-        api_logs_enabled.what = "Are CloudWatch logs enabled for Apis?";
-        api_logs_enabled.why = "It is important to set logs for Apis for debugging API issues";
-        api_logs_enabled.recommendation = "Recommended to set logs for all Apis";
+        const api_tracing_enabled: ICheckAnalysisResult = { type: CheckAnalysisType.OperationalExcellence };
+        api_tracing_enabled.what = "Are XRay tracing enabled for APIs?";
+        api_tracing_enabled.why = "XRay tracing for API helps to debug the issues faster";
+        api_tracing_enabled.recommendation = `Recommended to enable XRay tracing for all Apis`;
         const allRegionsAnalysis: IDictionary<IResourceAnalysisResult[]> = {};
         for (const region in allApis) {
             const regionApis = allApis[region];
@@ -33,31 +34,23 @@ export class ApiLogsAnalyzer extends BaseAnalyzer {
                         name: "ApiState",
                         value: `${api.name} | ${apiStage.stageName}`,
                     };
-                    const stageLogLevel = this.getLogLevel(apiStage);
-                    if (stageLogLevel && stageLogLevel !== "OFF") {
+                    if (this.isRequestTracingEnabled(apiStage)) {
                         apiStageAnalysis.severity = SeverityStatus.Good;
-                        apiStageAnalysis.message = `Logs are enabled with logLevel: ${stageLogLevel}`;
+                        apiStageAnalysis.message = "XRay Tracing is enabled";
                     } else {
                         apiStageAnalysis.severity = SeverityStatus.Warning;
-                        apiStageAnalysis.message = "Logs are not enabled";
-                        apiStageAnalysis.action = "Set logs for API Stage";
+                        apiStageAnalysis.message = "XRay Tracing is not enabled";
+                        apiStageAnalysis.action = `Enable XRay Tracing for API`;
                     }
                     allRegionsAnalysis[region].push(apiStageAnalysis);
                 }
             }
         }
-
-        api_logs_enabled.regions = allRegionsAnalysis;
-
-
-   
- 
-        return { api_logs_enabled };
+        api_tracing_enabled.regions = allRegionsAnalysis;
+        return { api_tracing_enabled };
     }
 
-    private getLogLevel(stage: any) {
-        if (stage.methodSettings["*/*"]) {
-            return stage.methodSettings["*/*"].loggingLevel;
-        }
+    private isRequestTracingEnabled(stage: any) {
+        return stage.tracingEnabled;
     }
 }
