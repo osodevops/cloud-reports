@@ -1,9 +1,7 @@
-[![Board Status](https://dev.azure.com/tensult/2c29ab5b-9000-4fa6-9749-f4e61e2ade0f/cf3227c2-a417-4152-9b04-adb28ea85230/_apis/work/boardbadge/fc868809-c7e9-4f6b-9d31-c36850a90084)](https://dev.azure.com/tensult/2c29ab5b-9000-4fa6-9749-f4e61e2ade0f/_boards/board/t/cf3227c2-a417-4152-9b04-adb28ea85230/Microsoft.RequirementCategory)
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=73QY55FZWSPRJ)
+[<img src="https://osodevops.io/assets/images/logo-purple-b3af53cc.svg" width="250"/>](https://osodevops.io)
 
 # Cloud Reports
 Collects info about various cloud resources and analyzes them against best practices and give a JSON, CSV, HTML, or PDF reports.
-
 
 <p align="center"> 
 <img src="https://user-images.githubusercontent.com/33080863/54195436-a734d300-44e4-11e9-952e-482eac08f345.png">
@@ -48,7 +46,7 @@ This package is based on NodeJS framework so you can it install from [here](http
 ### Installing cloud-reports from source
 #### Download
 
-    git clone https://github.com/tensult/cloud-reports.git
+    git clone https://github.com/osodevops/cloud-reports.git
 
 #### To get updates
 If you have already cloned this repository before then for getting new updates, change directory to the cloud-reports directory and then do git pull.
@@ -156,12 +154,33 @@ You may want to run the report for multiple accounts with different set of crede
     analysisPromise.then((analysisJsons) => console.log(JSON.stringify(analysisJsons, null, 2)));
 ```
 ### Update service regions[Broken as AWS changed the documentation UI]
-We have written a [script](https://github.com/tensult/cloud-reports/blob/master/src/scripts/updateAwsServiceRegionsData.js) which updates the [AWS regions data](https://github.com/tensult/cloud-reports/blob/master/src/utils/aws/regions_data.ts)
+We have written a [script](https://github.com/osodevops/cloud-reports/blob/master/src/scripts/updateAwsServiceRegionsData.js) which updates the [AWS regions data](https://github.com/osodevops/cloud-reports/blob/master/src/utils/aws/regions_data.ts)
 ```
 node src/scripts/updateAwsServiceRegionsData.js
 ```
-## Contribute
-Currently this application only supports AWS, but can be extendable to other cloud providers. Contributions are most welcome.
 
-## Contact us
-This product is supported and actively developed by [Tensult](https://www.tensult.com). You can contact us at info@tensult.com. Also, we have a SaaS version also for [this](https://apps.tensult.com) and currently it is free so please try it.
+## Disclaimer
+This product was originaly developed by [Tensult](https://www.tensult.com) we have forked the codebase and will continue to develop the solution going forwards. The original repo by Tensult has been archived.
+
+## Trademarks
+
+All other trademarks referenced herein are the property of their respective owners.
+
+## About
+
+[<img src="https://osodevops.io/assets/images/logo-purple-b3af53cc.svg" width="250"/>](https://osodevops.io)
+
+We are a cloud consultancy specialising in transforming technology organisations through DevOps practices. 
+We help organisations accelerate their capabilities for application delivery and minimize the time-to-market for software-driven innovation. 
+
+Check out [our other projects][github], [follow us on twitter][twitter], or [hire us][hire] to help with your cloud strategy and implementation.
+
+  [logo]: https://osodevops.io/assets/images/logo-purple-b3af53cc.svg
+  [website]: https://osodevops.io/
+  [github]: https://github.com/orgs/osodevops/
+  [hire]: https://osodevops.io/contact/
+  [linkedin]: https://www.linkedin.com/company/oso-devops
+  [twitter]: https://twitter.com/osodevops
+  [email]: https://www.osodevops.io/contact/
+
+
